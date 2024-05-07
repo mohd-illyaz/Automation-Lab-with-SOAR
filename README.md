@@ -376,6 +376,103 @@ It holds all configurations for Wazuh in this .conf file.
 
 Note: Run as administrator and open up notepad for file permissions
 
+<br/>
+<img src= "https://imgur.com/FirMjnQ.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Scroll down a bit until we get to the log analysis syntax. 
+In the local files syntax, do you see that it excludes using the ‘!=’ operator excludes the highlighted event IDs. (!= ‘does not equal to)
+Two ways to go about this by either using Sysmon or enabling EventID 4688. we will use Sysmon. In order to do so, we will configure the ossec.conf file and edit it to ingest our Sysmon logs.
+
+<br/>
+<img src= "https://imgur.com/JyCuNVn.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Let’s make a backup of it just in case we break things.
+Back in the configuration file we shall want to copy and paste the first syntax right under local files.
+
+<br/>
+<img src= "https://imgur.com/WjlJNKk.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+We want to change the file path of the Application to Sysmon. We are going to find that specific file path in Sysmon. By following this path:
+Application & Services Logs> Microsoft>Windows>Click the services & type ‘S’>Scroll down until we find Sysmon>Double Click it>Right Click Operational>Click Properties
+
+Go back to the configuration file and paste the highlighted text shown above and replace “Application”.
+
+<br/>
+<img src= "https://imgur.com/8OMNV6m.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+It should look exactly as shown above. We can run the same process for Powershell if we wanted to ingest the logs.
+We are going to be more thorough and remove the local file application, security, and system event log ingestions.
+We could leave it but it will take a lot more resources to ingest and all we need to prioritize are the Sysmon and active-response event logs.
+
+<br/>
+<img src= "https://imgur.com/NJ1AQfR.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Go ahead and overwrite the ossec.conf file.
+Search in the search bar “Services”. Click on the services and type ‘W’. Scroll down until we find Wazuh and Restart the service.
+
+Note: Anytime changing the configurations of a service we must restart the service to apply changes.
+
+Head back over to our Wazuh dashboard and click under Events. Search for “Sysmon.” It might take some time for Sysmon Events to ingest and it’s fine.
+Next thing we want to do is download Mimikatz onto our Windows 10 machine. First, we will want to do is disable Defender to allow Mimikatz to execute.
+
+Windows Security>Virus & Threat Protection>Scroll down a bit Managed Settings>Scroll down and click on “Add or remove exclusion”>Click on “Add an exclusion”>Click on “Folder”>Select our “Downloads” folder to exclude
+
+<br/>
+<img src= "https://imgur.com/UAFou7a.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+This will allow us to download Mimikatz within the Downloads folder.
+Let’s copy our file path that leads to Mimikatz into Powershell.
+
+<br/>
+<img src= "https://imgur.com/fJtjbKt.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Open up Powershell and run as administrator. Then, change directories into the file path copied shown below.
+Afterwards run Mimikatz as shown below. We will then check Wazuh if there were any events related to Mimikatz.
+
+<br/>
+<img src= "https://imgur.com/ogO1G2q.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+We get sysmon logs but not Mimikatz. By default Wazuh doesn’t detect everything. This is where the magic happens we must create detection rules for it, to look for Mimikatz specifically. It can be changed by going into the Wazuh manger and configuring the ossec.conf file to force it to look at everthing or create rules that looks at specific events like Mimikatz! Once it’s executed it will trigger automatically upon detection. Soon thereafter, we should have the log ingested and investigated.
+
+<br/>
+<img src= "https://imgur.com/A73n2a2.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+By going into our Wazuh SSH terminal from there able to modify the ossec.conf file by forcing it to detect everything.
+
+First, things first we want to create a backup to the ossec.conf file just in case we break things by running the following command
+Afterwards, we are going to edit the file using nano.
+<br/>
+<img src= "https://imgur.com/mZYu2Js.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Scroll down a bit and see that <logall> and <logall_json> syntaxes are set to ‘no’. Let’s change both to ‘yes’.
+Now, that the configurations have been made go ahead and overwrite the file.
+What this does is force Wazuh to archive all logs into a file named “Archive.”
+
+<br/>
+<img src= "https://imgur.com/A73n2a2.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/A73n2a2.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
 
 
 
@@ -396,15 +493,3 @@ Note: Run as administrator and open up notepad for file permissions
 
 
 
-
-
-<!--
- ```diff
-- text in red
-+ text in green
-! text in orange
-# text in gray
-@@ text in purple (and bold)@@
-```
---!>
-# Automation-Lab-with-SOAR
