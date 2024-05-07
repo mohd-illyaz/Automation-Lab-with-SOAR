@@ -467,10 +467,58 @@ Afterwards, we are going to edit the file using nano.
 Scroll down a bit and see that <logall> and <logall_json> syntaxes are set to ‘no’. Let’s change both to ‘yes’.
 Now, that the configurations have been made go ahead and overwrite the file.
 What this does is force Wazuh to archive all logs into a file named “Archive.”
+Change directory into the archives directory and ls into it to see the files contained in there. There will be all the logs archived there. What we would like is for Wazuh to ingest those logs.
+<br/>
+<img src= "https://imgur.com/w4TuoGd.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/xCB4Co1.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/8IVspPj.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+ Now we will be editing the .yaml file using nano and using the /etc/filebeat/filebeat.yml filepath to access it. Scrolll until you see…
+ Changing all filebeat.modules to ‘true’. Afterwards, overwrite the file. Remember, everytime we must restart the service to apply changes.
+
+ <br/>
+<img src= "https://imgur.com/3DVJxUz.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/ImGMgwj.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Back to Wazuh on the left handside click on Management and right under ‘Stack Management’.
+
+Click on Index patterns and on “Create index pattern.”
+
+Name the Index pattern as shown below and click Next.
+
+Scroll down and click on Timestamp. Afterwards click “Create index pattern.”
+
+Go back on the left handside and click on “Discover.”
+
+Select our ‘archives’ index pattern.
+
+following are the image description of the above mentioned steps:
+<br/>
+<img src= "https://imgur.com/vpwe3cs.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/reOsUWf.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/0aqxMnp.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/s1w0GDe.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/mBPtwhR.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/Yq1AQdQ.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Now give it some time to ingest the logs in regards to Mimikatz.
 
 <br/>
-<img src= "https://imgur.com/A73n2a2.png" height="80%" width="80%" alt=""/>
-<img src= "https://imgur.com/A73n2a2.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/D0yZn7t.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Back in our Wazuh Server CLI we want to follow the directory path using the ‘pwd’ command. Let’s ‘ls’ and see what directories we have in there.
+We see that theres an archives.json and archives.log files within the 2024 directory. There are definitely tons of events in those files because of the amount of bytes within those archive files.
+
+<br/>
+<img src= "https://imgur.com/wosbPcv.png" height="80%" width="80%" alt=""/>
 <br />
 <br />
 
