@@ -522,15 +522,41 @@ We see that theres an archives.json and archives.log files within the 2024 direc
 <br />
 <br />
 
+We are able to troubleshoot the Mimikatz event using the cat command. Followed by a pipe with a lower case grep and the specific Mimikatz event.
 
+<br/>
+<img src= "https://imgur.com/EkrmLin.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
 
+If that doesn’t work we can hop on over to our windows 10 machine.
+Let’s exit out of Mimikatz and execute it again. Let’s search up “Event Viewer” in the searchbar. In order to make certain that Sysmon is capturing the Mimikatz executable.
 
+Application & Services Log>Microsoft>Windows>Sysmon>Operation>Filter Current Logs>Event ID “1”
 
+<br/>
+<img src= "https://imgur.com/g7Vzhsy.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/Cdie2HB.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
 
+Upon filtration it should generate the EventID 1 Events. Let’s double click one and should show the Mimikatz executable.
 
+<br/>
+<img src= "https://imgur.com/yJewVNP.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
 
+We see that the executable is trying to Masquerade
+We go back and cat and grep Mimikatz again we get a whole lot more Telemetry than before we had only one event.
 
+<br/>
+<img src= "https://imgur.com/Xb1jPdg.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
 
+Let’s get back to our Wazuh dashboard and search for specifically mimikatz within our events.
+We got 2 hits!! Let’s expand on one of the events and scroll down a bit.
 
 
 
