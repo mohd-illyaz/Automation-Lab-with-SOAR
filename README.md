@@ -89,9 +89,304 @@ Inside the droplet let’s click on Networking. Scroll down until you see Firewa
 Click “Edit” It will show the newly created firewall we just created click on it. Scroll over to our droplet tab and click “Add Droplets.”
 
 <br/>
+<img src= "https://imgur.com/TrUP4ZE.png" height="80%" width="80%" alt=""/>
 <img src= "https://imgur.com/DlpxGH9.png" height="80%" width="80%" alt=""/>
 <br />
 <br />
+
+It should’ve successfully been added and should be up to date.
+Under, the droplets tab and under Wazuh. Click on the Access tab within the droplet. There will be a droplet console to allow remote access to our Virtual Machine.
+
+<br/>
+<img src= "https://imgur.com/vjHIACT.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Click “Launch Droplet Console”. Give it time to connect to droplet. Once, we have successfully connected via SSH.
+
+Note: I was having issues with droplet console in DigitalOcean so i decided to SSH into Powershell instead.
+ssh root@<IP address of droplet>
+
+Since, we are already in root we can run:
+
+apt-get update && apt-get upgrade -y
+
+<br/>
+<img src= "https://imgur.com/B20yQUL.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Press enter. Again it will ask you which services you would like to run again hit enter. Once, finished we may begin with the installer of Wazuh.
+
+Which, can be found on Wazuh’s website for reference.
+
+curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh && sudo bash ./wazuh-install.sh -a
+
+Give it a couple minutes for Wazuh to install. Once it’s finalized it will display the username and password to access Wazuh dashboard. Make sure to document the credentials within a notepad or password manager for the remainder of the lab.
+
+In order to login into Wazuh we must copy our server’s public IP address. Afterwards within our browser let’s paste in our Server IP via:
+
+https://<server IP>
+
+<br/>
+<img src= "https://imgur.com/AI5fhcM.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+t will prompt you that the connection is insecure. That’s okay click on ‘Advanced’ and click on ‘Proceed to <Server IP>(unsafe)’. It should redirect us to Wazuh’s dashboard. We are in! >:)
+
+Now is to install and configure TheHive. Let’s go back into DigitalOcean and hover over to Create in the top right corner. Click on it.
+We will want to click the Server in the region closest to us.
+Scroll down to choose an image. We will go with Ubuntu 22.04 LTS x64 like before.
+
+Scroll down again to Sizes and we will go with these allocated resources.
+
+<br/>
+<img src= "https://imgur.com/v3ysYLr.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Next, let’s make sure we place the “thehive” droplet we just created into the firewall we had created before.
+Click on our recently created Firewall.
+Click on the Droplets tab. It should show a button to “Add Droplets.” Click on it and search up “thehive” droplet we just created.
+Add the droplet to our firewall. Sweet! We should get a prompt we updated our firewall successfully! 
+We can verify it by going back to our firewall and our newly created “thehive” droplet should be there.
+
+<br/>
+<img src= "https://imgur.com/OU1AUqK.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Note: I am going to be using Powershell again to SSH since the DigitalOcean console is giving me issues. Remember to copy the thehives server public IP.
+
+ssh root@<Server IP>
+
+Once, we are in let’s copy and paste TheHive’s prerequisites by running:
+
+apt install wget gnupg apt-transport-https git ca-certificates ca-certificates-java curl software-properties-common python3-pip lsb-release
+
+Once, the prerequisties are done installing we are next going to be installing 4 components: Java, Cassandra, ElasticSearch, lastly TheHive.
+
+Note: Run each command one at a time it will not run the commands together in Powershell.
+
+First up we are going to install Java by running the command below:
+
+wget -qO- https://apt.corretto.aws/corretto.key | sudo gpg –dearmor -o /usr/share/keyrings/corretto.gpg
+echo “deb [signed-by=/usr/share/keyrings/corretto.gpg] https://apt.corretto.aws stable main” | sudo tee -a /etc/apt/sources.list.d/corretto.sources.list
+sudo apt update
+sudo apt install java-common java-11-amazon-corretto-jdk
+echo JAVA_HOME=”/usr/lib/jvm/java-11-amazon-corretto” | sudo tee -a /etc/environment
+export JAVA_HOME=”/usr/lib/jvm/java-11-amazon-corretto”
+
+Press Enter.
+
+Next, we are going install Cassandra running the following command below:
+
+wget -qO – https://downloads.apache.org/cassandra/KEYS | sudo gpg –dearmor -o /usr/share/keyrings/cassandra-archive.gpg
+echo “deb [signed-by=/usr/share/keyrings/cassandra-archive.gpg] https://debian.cassandra.apache.org 40x main” | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+sudo apt update
+sudo apt install cassandra
+
+Third, install ElasticSearch by running the following command shown below:
+
+wget -O- https://archives.strangebee.com/keys/strangebee.gpg | sudo gpg –dearmor -o /usr/share/keyrings/strangebee-archive-keyring.gpg
+echo ‘deb [signed-by=/usr/share/keyrings/strangebee-archive-keyring.gpg] https://deb.strangebee.com thehive-5.2 main’ | sudo tee -a /etc/apt/sources.list.d/strangebee.list
+sudo apt-get update
+sudo apt-get install -y thehive
+
+After, they have all successfully installed. We shall go ahead and configure them so they may work together seamlessly.
+
+First, we will want to configure Cassandra in “thehive” server
+
+nano /etc/cassandra/cassandra.yaml
+
+Replace the ‘clustername’ with a name of your choosing in my case, it’s ‘eddythir’.
+
+ctrl+w and search listen_address
+
+Change it to our ‘thehives’ public IP address. Do the same for rpc_address.
+
+ctrl+w and search rpc_address
+
+Change it to our ‘thehives’ public IP address again. Do the same for seed_provider.
+
+ctrl+w and search seed_provider
+
+Change the default address with our servers public IP address. By also, keeping the default port :7000. Save it by using;
+
+ctrl+x and it will prompt you to overwrite the file type y for yes
+
+steps are mentioned clearly in the following images:
+
+<br/>
+<img src= "https://imgur.com/oSYTevE.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/yNMaenT.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/sLFtJEP.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Now we are going to stop the Cassandra service with first command shown below. Second, we are going to delete all files in the /var/lib/cassandra/ directory. Third, we are going to restart the service using the third command. Last, its a good habit to check if our desired Cassandra service is running by using the last command shown below. We see that it’s active and running.
+
+<br/>
+<img src= "https://imgur.com/CSgJxdL.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Next, we are going to configure the configuration files for ElasticSearch.
+
+nano /etc/elasticsearch/elasticsearch.yml
+
+Once, in scroll down and remove the comment on ‘cluster.name’.
+
+Let’s change it to “thehive.”
+
+Scroll down again and remove the comment on ‘node.name’.
+
+We shall leave it as ‘node-1’.
+
+Scroll down even more and remove the comment on ‘network.host’.
+
+Delete the current host IP and input thehive’s public IP address.
+
+Scroll down a bit after that and remove the comment on ‘http.port:9200’.
+
+Scroll down a bit more and remove the comment on ‘cluster.initial_master_nodes:’.
+
+Remove “node-2” and just leave “node-1”.
+
+cluster.initial_master_nodes: [“node-1”]
+
+It should look like this. We don’t need to scroll any further because there is no need to scale in a demo environment. Let’s save it.
+
+Next, let’s start by starting the elasticsearch service.
+
+systemctl start elasticsearch
+
+Next, enable it by running the following:
+
+systemctl enable elasticsearch
+
+Lastly, we will want to check the status of elasticsearch to verify it’s running.
+
+<br/>
+<img src= "https://imgur.com/Hige1WI.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Next, we will want to get into configuring the configuration files for TheHive. We want to make sure a specific user and group have access to a certain file path.
+
+Note: Remember our Powershell command didn’t install TheHive in the beginning. We must manually reinstall TheHive.
+
+We will then ls -la into the /opt/thp directory. It will show us file permissions for the root user. 
+We will then want to change those permissions to user & group ‘thehive’ recursively within the /opt/thp directory.
+We shall then proceed to nano into applicaiton.conf file to change it’s configurations. Scroll down a bit until you see to:
+Change both hostnames shown above to our ‘thehive’ public IP address. Also, change cluster-name to the one previously.
+
+<br/>
+<img src= "https://imgur.com/8VLbw3p.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/etrvrT4.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Scroll down a bit more.
+In ‘application.baseUrl = “http://localhost:9000” to ‘thehive’ public IP address as shown above.
+
+Also, I see that the Cortex and MISP are enabled by default but, can be disabled. Cortex is their data enrichment and response capability. While, MISP is used for CTI (Cyber Threat Intelligence) platform.
+
+Let’s go ahead and save the configuration file.
+
+
+<br/>
+<img src= "https://imgur.com/Sd72fyU.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Start and enable the hive using the commands below. Then, verify if TheHive is actually running. It’s good habit to check the other services too.
+
+<br/>
+<img src= "https://imgur.com/4n6W1AT.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+NOW DO,
+http://<Your Server IP>:9000
+
+user: admin@thehive.local
+
+password: *******
+
+<br/>
+<img src= "https://imgur.com/QNpgOue.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+We are in! Now, that we have TheHive configured we will move onto configuring Wazuh server.
+
+Let’s login using our credentials we had saved.
+
+We will immediately met with no agents installed into our manager.
+So Let’s hop right back into Wazuh server terminal and run the ls command to check if the Wazuh install files exist. We then want to extract .tar Wazuh install file. Right afterwards want to change right into that directory.
+Go right back into that directory and ls into it to see what we’ve got. We are interested in the “wazuh-passwords.txt” file. We shall concatenate into the file.
+
+<br/>
+<img src= "https://imgur.com/z82uEDe.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/KGkSPKw.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+We are going to be using the Wazuh API user credentials later on in the lab.
+
+<br/>
+<img src= "https://imgur.com/uK53yK3.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Let’s get back into Wazuh and add the missing agent by clicking ‘Add agent’ button.
+
+Scroll down and click on Windows.
+
+<br/>
+<img src= "https://imgur.com/xSAPRZa.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Copy and paste this command once your configurations are ready.
+
+net start wazuhsvc
+
+To begin starting the Wazuh service. Additionally, we can start the Service in the “Services” program.
+
+Back to Wazuh we should see that our Agent is connected. We just successfully configured our Wazuh server 
+
+<br/>
+<img src= "https://imgur.com/0QxM1WO.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+We can maneuver into Security Events and begin querying Security Events in Wazuh!!! We just configured Wazuh & TheHive and now working as expected,
+
+Now on to the next stage ;
+Generating Telemetry via Mimikatz & Ingesting Logs into Wazuh
+
+Let’s start off by starting up our Windows 10 machine. Next, the file path:
+
+C:\Program Files (x86)\ossec-agent\ossec.conf
+
+It holds all configurations for Wazuh in this .conf file.
+
+Note: Run as administrator and open up notepad for file permissions
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
