@@ -40,7 +40,7 @@ Sysmon is a valuable tool for enhancing the security posture of Windows-based sy
 
 First, we are going to begin by Installing VirtualBox and Installing Windows 10 into it. Next, we are going to download Sysmon straight from Microsoft’s website. Once, that’s done we are going to begin installing Sysmon .XML file. Once both are finished downloading we extract the zipped Sysmon file right in the Downloads directory. We are going to copy the file path for our next step.
 
-From there we shall open Powershell with administrative privileges. We are then going to go over to run the following commands shown below:
+From there we shall open Powershell with administrative privileges. We are then going to go over to run the following commands shown below
 
 <br/>
 <img src= "https://imgur.com/ZcFV1AS.png" height="80%" width="80%" alt=""/>
