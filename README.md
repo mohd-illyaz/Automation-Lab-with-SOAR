@@ -558,10 +558,102 @@ We go back and cat and grep Mimikatz again we get a whole lot more Telemetry tha
 Let’s get back to our Wazuh dashboard and search for specifically mimikatz within our events.
 We got 2 hits!! Let’s expand on one of the events and scroll down a bit.
 
+<br/>
+<img src= "https://imgur.com/pQKl2TF.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
 
+Search in the table and search for the ‘OriginalFileName’ of the Mimikatz executable. We want to create a detection rule based off this field. For example, an adversary could possible circumvent our detection rule if we wanted to detect for the image instead by changing the executable name to MimiKow instead. Now, with the originalFileName we should still be able to see the origianl file name no matter if it’s changed.
 
+<br/>
+<img src= "https://imgur.com/4eRKv5s.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
 
+Next, within the dashboard we are going to begin creating our detection rule for Mimikatz.
+The gear icon is “Management” and within it there’s ‘Rules’. Clicking it.
 
+<br/>
+<img src= "https://imgur.com/wxmEBaK.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Scroll a bit down below and search for “Sysmon.” We want to look for the specific rule that contains EventID ‘1’ which is the highlighted file shown below.
+
+<br/>
+<img src= "https://imgur.com/SxO3D8J.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Click the eye icon to take a look at the rule.
+
+<br/>
+<img src= "https://imgur.com/KmX3ZNn.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+These are Sysmon rules built into Wazuh specifically built for EventID 1. We will copy one of these for reference starting with the first one shown all the way until it hits the rule syntax.
+
+<br/>
+<img src= "https://imgur.com/ZMqdwhn.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Head back and click on “Custom Rules.” Right after, click on the pencil icon.
+
+<br/>
+<img src= "https://imgur.com/bwfiPhR.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Let’s copy and paste the rule we had done previously.
+
+<br/>
+<img src= "https://imgur.com/CO7nfSk.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+The following is our new field now.
+
+<br/>
+<img src= "https://imgur.com/n8lqHnp.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+Let me explain it. We changed the rule id to match with the first one above and made it the second rule. We priortized it for the heck of it to Level 15 for absolute priority as 15 is the highest it can go. We removed ‘parentImage’ with ‘originalFileName’ with no case sensitivity. If it was, the alert would never trigger. The type is essentially regex. The (?i) ‘mimikatz’ just ignoring case sensitivity for the filed value ‘mimikatz’. We remove the option ‘no full_log’ because we want all the logs. We then insert a description of our detection rule. For the ID we change it to T1003 because that is credential dumping which is what Mimikatz is known for. 
+
+After that we can save and restart the manager.
+
+To prove a point let’s head on over to our Windows 10 machine and go to the Mimikatz file path.
+Rename the file to “notacredentialdump.” Go to the Mimikatz shell. Exit out of it. 
+
+<br/>
+<img src= "https://imgur.com/TzmSald.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+ let’s return to our Wazuh dashboard.
+ We want to make sure there isn’t any alerts on Mimikatz being triggered which we don’t which is good.
+
+./notacredentialdump.exe
+
+Run Mimikatz again using our obfuscated filename.
+
+<br/>
+<img src= "https://imgur.com/bn1BXQq.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+Took a couple minutes for the alert to trigger for me despite the rename. It still was able to trigger the alert because the originalFileName was changed.
+
+<br/>
+<img src= "https://imgur.com/UNqVySW.png" height="80%" width="80%" alt=""/>
+<img src= "https://imgur.com/ljJnv7Z.png" height="80%" width="80%" alt=""/>
+<br />
+<br />
+
+We just created our first detection rule and triggered it! On top of that configured our Wazuh to ingest all logs as well as Sysmon.
+
+NOW It is the time to startup the automation process using Shuffle SOAR
 
 
 
