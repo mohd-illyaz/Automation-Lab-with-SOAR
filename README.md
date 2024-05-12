@@ -12,7 +12,7 @@ Configuration Reference Diagram: <br/>
 - Generating Telemetry via Mimikatz & Ingesting Logs into Wazuh
 - Integrateing Shuffle SOAR and employing VirusTotal
 - Directing alerts to Shuffle and escalating it to TheHive for case management
-- Mailing it to SOC analysts for the investigation then enabling proactive response by the Wazuh to secure Windows.
+- Mailing it to the SOC analysts for the investigation then enabling proactive response by the Wazuh to secure Windows.
 
 ### Tools Used
 - Digitalocean
